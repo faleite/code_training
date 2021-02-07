@@ -1,4 +1,4 @@
-def f_contar_c(s): #criar função que conta casactere da string 's'(s)
+def f_contar_c(s): #criar função que conta casacteres da string 's'(s)
     """Função contar caracteres de uma string
     ##Quais são os caracteres de uma string, e quantas vezes cada caracter aparece na mesma?
     Ex:
