@@ -22,6 +22,10 @@
 0
 >>> caixa.consultar_fita()
 ['Pagamento em dinheiro no valor de R$ 100, troco retornado de R$ 60', 'Pagamento em dinheiro no valor de R$ 200, troco retornado de R$ 190', 'Pagamento em cc no valor de R$ 30, numero cc; 1234']
+>>> caixa.pagar_em_cd(valor_produto=50, numero_cartao='4321')
+0
+>>> caixa.consultar_fita()
+['Pagamento em dinheiro no valor de R$ 100, troco retornado de R$ 60', 'Pagamento em dinheiro no valor de R$ 200, troco retornado de R$ 190', 'Pagamento em cc no valor de R$ 30, numero cc; 1234', 'Pagamento em cd no valor de R$ 50, numero cd; 4321']
 """
 
 
@@ -36,6 +40,10 @@ class Pagamento:
     def calcular_troco(self):
         return 0
 
+    @classmethod
+    def obter_dados(cls):
+        raise NotImplementedError()
+
 
 class PagamentoEmDinheiro(Pagamento):
     def __init__(self, valor_pago, valor_produto):
@@ -48,15 +56,33 @@ class PagamentoEmDinheiro(Pagamento):
     def __str__(self):
         return f'Pagamento em dinheiro no valor de R$ {self.valor_pago}, troco retornado de R$ {self.calcular_troco()}'
 
+    @classmethod
+    def obter_dados(cls):
+        valor_produto = int(input('Forneça o valor do produto: '))
+        valor_pago = int(input('Forneça o valor Pago: '))
+        return valor_pago, valor_produto
 
-class PagamentoEmCartaoDeCredito(Pagamento):
 
+class PagamentoCartao(Pagamento):
     def __init__(self, valor_produto, numero_cartao):
         super().__init__(valor_produto)
         self.numero_cartao = numero_cartao
 
+    @classmethod
+    def obter_dados(cls):
+        valor_produto = int(input('Forneça o valor do produto: '))
+        numero_do_cartao = int(input('Número do cartão: '))
+        return valor_produto, numero_do_cartao
+
+
+class PagamentoEmCartaoDeCredito(PagamentoCartao):
     def __str__(self):
         return f'Pagamento em cc no valor de R$ {self.valor_produto}, numero cc; {self.numero_cartao}'
+
+
+class PagamentoEmCartaoDeDebito(PagamentoCartao):
+    def __str__(self):
+        return f'Pagamento em cd no valor de R$ {self.valor_produto}, numero cd; {self.numero_cartao}'
 
 
 class Caixa:
@@ -86,3 +112,10 @@ class Caixa:
         self._pagamentos.append(pgto)
         self.saldo += pgto.valor_produto
         return pgto.calcular_troco()
+
+    def pagar_em_cd(self, valor_produto, numero_cartao):
+        pgto = PagamentoEmCartaoDeDebito(valor_produto, numero_cartao)
+        return self._registrar_pagamento(pgto)
+
+    def ultimo_pagamento(self):
+        return self._pagamentos[-1]
